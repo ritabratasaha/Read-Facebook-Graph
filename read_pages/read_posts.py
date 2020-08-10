@@ -1,3 +1,7 @@
+#####
+# Read data from Facebook Graph API
+####
+
 import json
 import facebook
 from  utility import get_accessToken 
