@@ -15,22 +15,6 @@ def set_session():
     return session
 
 
-
-def get_fb_accessToken():
-
-    ## Read existing access token from s3
-    bucketName = 'rs.webanalytics'
-    inobjectKey = 'Facebook/Page_Token.json'
-    session = set_session()
-    s3 = session.client('s3')
-    obj = s3.get_object(Bucket=bucketName, Key=inobjectKey)
-    json_token= json.loads(obj["Body"].read().decode())
-    access_token = json_token["access_token"]
-    logging.info ("current access token = {0} ".format(access_token))
-    return access_token
-
-
-
 def get_fb_app_credentials():
 
     ## Read existing access token from s3
@@ -42,17 +26,31 @@ def get_fb_app_credentials():
     jsondata = json.loads(obj["Body"].read().decode())
     app_id = jsondata["app_id"]
     app_secret = jsondata["app_secret"]
-    #logging.info ("app_id = {0}".format(app_id))
-    #logging.info ("app_secret = {0} ".format(app_secret))
     return app_id, app_secret
 
+
+def get_fb_page_accessToken():
+
+    ## Read existing access token from s3
+    bucketName = 'rs.webanalytics'
+    inobjectKey = 'Facebook/Tokens/LearnerApp_Token.json'
+    session = set_session()
+    s3 = session.client('s3')
+    obj = s3.get_object(Bucket=bucketName, Key=inobjectKey)
+    page_object= json.loads(obj["Body"].read().decode())
+    logging.info ("page access object = {0} ".format(page_object))
+    return page_object
 
 
 def refresh_fb_access_token():
 
     ## Refresh current token
-    current_token = get_fb_accessToken()
+    
     app_id, app_secret = get_fb_app_credentials()
+    page_object = get_fb_page_accessToken()
+    page_id = page_object['page_id']
+    current_token = page_object['access_token']
+
     url = 'https://graph.facebook.com/oauth/access_token'       
     payload = {
         'grant_type': 'fb_exchange_token',
@@ -61,19 +59,22 @@ def refresh_fb_access_token():
         'fb_exchange_token': current_token
     }
     response = requests.get(url, params=payload)
-
+        
     if (response.status_code == 200):
 
         logging.info("graph api response status = {0}".format(response.status_code))
         new_access_token = response.json()["access_token"]
         logging.info ("new access token : {0}".format(new_access_token))
+        
+        response_dict = response.json()
+        page_object.update(response_dict)
 
         ## Write current token back to S3
         bucketName = 'rs.webanalytics'
-        outobjectKey = 'Facebook/Page_Token.json'
+        outobjectKey = 'Facebook/Tokens/LearnerApp_Token.json'
         session = set_session()
         s3 = session.client('s3')
-        obj = s3.put_object(Bucket=bucketName, Key=outobjectKey, Body=response.text)
+        obj = s3.put_object(Bucket=bucketName, Key=outobjectKey, Body= json.dumps(page_object,indent=4))
 
         if (obj['ResponseMetadata']['HTTPStatusCode'] == 200):
             logging.info("Refresh token uploaded")
@@ -85,13 +86,7 @@ def refresh_fb_access_token():
         logging.info("Refresh of token failed. Exiting processing")
         exit(0)    
 
-def main():
-    #get_fb_accessToken()
-    #get_fb_app_credentials()
-    refresh_fb_access_token()
-
-if __name__ == "__main__":
-    main()
+    return page_id, new_access_token 
      
 
     

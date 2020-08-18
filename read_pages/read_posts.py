@@ -1,25 +1,19 @@
 #####
 # Read data from Facebook Graph API
-# This is my second update
-# This is my third update
 ####
 
 import json
 import facebook
-from  utility import get_accessToken 
+from  utility import * 
 import pandas as pd
 
 def get_posts():
 
-    print()
-    graph =  facebook.GraphAPI(access_token=get_accessToken())
+    page_id,access_token = refresh_fb_access_token()
     
-    # app_id = '611417473073068'
-    # app_secret = '39b76b9499d3623d4a31b6ed9a200c7d'
-    # graph = facebook.GraphAPI()
-    # access_token = graph.get_app_access_token(app_id, app_secret)
-
-    posts = graph.get_object(id = '671278940149620',fields = 'posts')
+    graph =  facebook.GraphAPI(access_token)
+    
+    posts = graph.get_object(id = page_id ,fields = 'posts')
 
     print(json.dumps(posts, indent=4))
 
