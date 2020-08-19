@@ -2,10 +2,11 @@
 import boto3
 import json
 import requests
-
-
+from datetime import *
+import time
+#from datetime import timedelta 
    
-bucketName = 'rs.webanalytics'
+""" bucketName = 'rs.webanalytics'
 inobjectKey = 'Facebook/Tokens/LearnerApp_Token.json'
 session = boto3.session.Session(profile_name='Dev')
 s3 = session.client('s3')
@@ -29,4 +30,28 @@ response = requests.get(url, params=payload)
 #response_dict = json.loads(response.text)
 response_dict = response.json()
 page_object.update(response_dict)
-print(json.dumps(page_object, indent=4))
+print(json.dumps(page_object, indent=4)) """
+
+
+
+""" utctoday = datetime.utcnow().date()
+print(utctoday)
+today = date.today()
+print(today)
+yesterday = (today - timedelta(days=1) )
+print(yesterday)
+print(int(yesterday.strftime("%s")))
+print(int(today.strftime("%s"))) """
+
+
+
+metric_list = ['page_views_total','page_views_by_age_gender_logged_in_unique','page_posts_impressions','page_posts_impressions_organic','page_posts_impressions_paid']
+
+concat_list = ''
+for items in metric_list:
+    concat_list =  items + ',' + concat_list
+print (concat_list.rstrip(','))
+
+
+today = date.today().strftime("%Y%m%d")
+print(today)
