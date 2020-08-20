@@ -47,11 +47,25 @@ print(int(today.strftime("%s"))) """
 
 metric_list = ['page_views_total','page_views_by_age_gender_logged_in_unique','page_posts_impressions','page_posts_impressions_organic','page_posts_impressions_paid']
 
-concat_list = ''
+""" concat_list = ''
 for items in metric_list:
     concat_list =  items + ',' + concat_list
 print (concat_list.rstrip(','))
+ """
+
+# today = date.today().strftime("%Y%m%d")
+# print(today)
 
 
-today = date.today().strftime("%Y%m%d")
-print(today)
+startdate = datetime.strptime('2020-08-01','%Y-%m-%d').date()
+print(startdate)
+
+for i in range(10):
+    next_day = startdate + timedelta(days=1)
+    unixdate = int(next_day.strftime("%s"))
+    startdate = next_day
+    print(next_day, unixdate)
+
+unixtime = int(startdate.strftime("%s"))
+print(unixtime)
+
