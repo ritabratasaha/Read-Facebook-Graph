@@ -4,6 +4,7 @@ import json
 import requests
 from datetime import *
 import time
+import pandas as pd
 #from datetime import timedelta 
    
 """ bucketName = 'rs.webanalytics'
@@ -57,7 +58,7 @@ print (concat_list.rstrip(','))
 # print(today)
 
 
-startdate = datetime.strptime('2020-08-01','%Y-%m-%d').date()
+""" startdate = datetime.strptime('2020-08-01','%Y-%m-%d').date()
 print(startdate)
 
 for i in range(10):
@@ -67,5 +68,23 @@ for i in range(10):
     print(next_day, unixdate)
 
 unixtime = int(startdate.strftime("%s"))
-print(unixtime)
+print(unixtime) """
 
+
+f = open('/home/ubuntu/data_files/Insights_671278940149620_20200810.json',"r")
+data_dict = json.loads(f.read())
+
+thisdict = {}
+
+for items in data_dict['data']:
+    #print(items['name'])
+    thisdict['metric'] = items['name']
+    for i in items['values']:
+        #print(i['value'])
+        thisdict['values'] = i['value']
+        #print(i['end_time'])
+        thisdict['date'] = i['end_time']
+    #print(thisdict)
+    print(pd.json_normalize(thisdict).to_csv)
+
+#print(pd.json_normalize(data_dict['data'], max_level=2))
