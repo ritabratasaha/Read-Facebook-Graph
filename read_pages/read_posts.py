@@ -6,7 +6,7 @@ import json
 import facebook
 import logging
 import requests
-from  utility import refresh_fb_access_token,set_session,get_fb_page_current_accessToken
+from  utility import refresh_fb_access_token,set_session,get_fb_page_current_accessToken,insight_create_csv
 from datetime import *
 
 
@@ -45,6 +45,8 @@ def get_page_insights(page_id,access_token,from_date,to_date):
 def main():
 
     
+    bucketName = 'rs.webanalytics'
+
     ## Generate new token
     status_code, response_json  = refresh_fb_access_token()
     
@@ -61,7 +63,6 @@ def main():
         page_access_object.update(response_json)
         logging.info ("Updated page access object with refreshed token = {0} ".format(page_access_object))
 
-        bucketName = 'rs.webanalytics'
         outobjectKey = 'Facebook/Tokens/LearnerApp_Token.json'
         session = set_session()
         s3 = session.client('s3')
@@ -82,7 +83,7 @@ def main():
 
     startdate = datetime.strptime('2020-08-10','%Y-%m-%d').date()
 
-    for i in range(2): # No days from the starting date
+    for cnt in range(2): # No days from the starting date. Loop through each day
         
         unixdate = int(startdate.strftime("%s"))
         filedate = startdate.strftime("%Y%m%d")
@@ -94,8 +95,9 @@ def main():
         if (status_code == 200):
             
             filename = 'Insights_' + page_id + '_' + filedate + '.json'
+
             ## Write raw response to S3
-            bucketName = 'rs.webanalytics'
+            
             outobjectKey = 'Facebook/Raw_Store/'+ filename
             session = set_session()
             s3 = session.client('s3')
@@ -111,6 +113,16 @@ def main():
         # increment to the next day
         next_day = startdate + timedelta(days=1)
         startdate = next_day
+
+        ## Change to CSV and move to CSV folder
+
+        status = insight_create_csv(bucketName, outobjectKey)
+
+        if ( status == False ):
+            logging.info("Conversion to csv successful ")
+        else :
+            logging.info("Conversion to csv failed ")
+            exit(0)
 
 
 if __name__ == "__main__":
