@@ -6,10 +6,10 @@ import json
 import facebook
 import logging
 import requests
-from  utility import refresh_fb_access_token,set_session,get_fb_page_current_accessToken,page_insight_create_csv,post_insight_create_csv
-from page_insights import get_page_insights
-from post_insights import get_post_insights
-from page_metrics import get_page_metrics
+from  utility import refresh_fb_access_token,set_session,get_fb_page_current_accessToken
+from page_insights import get_page_insights,page_insight_create_csv
+from post_insights import get_post_insights,post_insight_create_csv
+from page_metrics import get_page_metrics,page_metric_create_csv
 from datetime import *
 
 
@@ -52,7 +52,7 @@ def main():
     if (status_code == 200):
         logging.info("Response from page metrics{0}".format(response_json))
         filedate = date.today().strftime("%Y%m%d")
-        filename = 'PageMetric_' + page_id + '_' + filedate + '.json'
+        filename = 'PageMetrics_' + page_id + '_' + filedate + '.json'
         outobjectKey = 'Facebook/Raw_Store/'+ filename
         session = set_session()
         s3 = session.client('s3')
@@ -62,10 +62,17 @@ def main():
         else:
             logging.info("Page file uploading failed. Exiting processing")
             exit(0)
-        # Convert to CSV (TBD)
+      
+        ## Convert JSON to CSV and move to CSV folder. 
+        status = page_metric_create_csv(bucketName, outobjectKey)
+        if ( status == True ):
+            logging.info("Conversion to csv successful ")
+        else :
+            logging.info("Conversion to csv failed ")
+            exit(0)
     else:
         logging.info("Response from page metrics failed")
-    
+  
 
 
 
@@ -94,11 +101,10 @@ def main():
                 exit(0)
         else:
             logging.info ("API response error : {0}".format(response_json))
-        
         # increment to the next day
         next_day = startdate + timedelta(days=1)
         startdate = next_day
-        ## Change JSON to CSV and move to CSV folder
+        ## Convert JSON to CSV and move to CSV folder
         status = page_insight_create_csv(bucketName, outobjectKey)
         if ( status == True ):
             logging.info("Conversion to csv successful ")
@@ -108,7 +114,11 @@ def main():
 
 
 
+
+
     ## Pull "post insights" data from API
+    ## 2. Store reponse in raw store as json
+    ## 3. Convert json to csv
     startdate = date.today() - timedelta(days=30)
     unixdate = int(startdate.strftime("%s"))
     status_code, post_insights_json =  get_post_insights(page_id,new_access_token,unixdate)
@@ -128,7 +138,6 @@ def main():
                 exit(0)
     else:
         logging.info ("Error in Posts insight call ")
-
     ## Change JSON to CSV and move to CSV folder
     status = post_insight_create_csv(bucketName, outobjectKey)
     if ( status == True ):

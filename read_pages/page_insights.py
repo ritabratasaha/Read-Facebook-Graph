@@ -1,6 +1,9 @@
 import json
 import requests
 import logging
+import boto3
+from  utility import refresh_fb_access_token,set_session,get_fb_page_current_accessToken
+import csv
 
 def get_page_insights(page_id,access_token,from_date,to_date):
 
@@ -30,3 +33,47 @@ def get_page_insights(page_id,access_token,from_date,to_date):
     response = requests.get(url, params=payload)
     #print(json.dumps(response.json(), indent=4))
     return response.status_code, response.json()
+
+
+
+
+def page_insight_create_csv(bucket_name, object_key):
+
+    #Inputs: bucketname of the source file that needs to be converted.
+    #        object key of the source file that needs to be converted. 
+    
+    logging.info("Function page_insight_create_csv() invoked")
+    file_name = object_key.split('/')[-1].split('.')[0]
+    inobjectKey = object_key
+    outobject_key =  'Facebook/Csv_Store/' + file_name + '.csv'
+    csv_file_name = '/tmp/' + file_name + '.csv'
+  
+    session = set_session()
+    session = boto3.session.Session(profile_name='Dev')
+    s3 = session.client('s3')
+    s3_obj = s3.get_object( Bucket= bucket_name , Key= inobjectKey)
+    s3_objdata = s3_obj['Body'].read().decode('utf-8')
+    access_dict = json.loads(s3_objdata)
+
+
+    with open (csv_file_name,"w") as file:
+        csv_file = csv.writer(file,quotechar='"',quoting=csv.QUOTE_ALL)
+        csv_file.writerow(["Id","Metric","Values","EffectiveDate"])
+        for metric in access_dict['data']:
+            Id = metric['id']
+            Metric = metric['name']
+            for values in metric['values']:
+                mvalues = values['value']
+                endtime = (values['end_time'])[:10]
+                csv_file.writerow([Id,Metric,mvalues,endtime])
+
+    logging.info("Upload params : csv file name {0} uploaded object {1}".format(csv_file_name, outobject_key))
+
+    try :
+        s3.upload_file(csv_file_name,bucket_name,outobject_key)
+        logging.info("File has been uploaded")
+    except ClientError as e:
+        logging.error(e)
+        return False
+
+    return True

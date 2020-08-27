@@ -48,7 +48,7 @@ print(int(today.strftime("%s"))) """
 
 
 
-metric_list = ['page_views_total','page_views_by_age_gender_logged_in_unique','page_posts_impressions','page_posts_impressions_organic','page_posts_impressions_paid']
+#metric_list = ['page_views_total','page_views_by_age_gender_logged_in_unique','page_posts_impressions','page_posts_impressions_organic','page_posts_impressions_paid']
 
 """ concat_list = ''
 for items in metric_list:
@@ -122,7 +122,36 @@ print(unixtime) """
 # print (type(response))
 
 
+access_dict = {
+                 "engagement": { 
+                 "count": 4, 
+                 "social_sentence": "4 people like this."
+                 },
+                 "fan_count": 4,
+                 "location" : {"city":"Bangalore", "country":"India"},
+                 "id": "671278940149620"
+                }
+
+metric_value = []
+
+id = access_dict['id']
+
+metric_value.append( tuple((id,'engagement',access_dict['engagement']['count'])) )
+metric_value.append( tuple((id,'fan_count',access_dict['fan_count'] )) )
+metric_value.append( tuple((id,'city',access_dict['location']['city'] )) )
+metric_value.append( tuple((id,'city',access_dict['location']['country'] )) )
+
+print(metric_value)
+
+for each in metric_value:
+    print(each[0])
+
+with open ('/tmp/output.csv',"w") as file:
+    csv_file = csv.writer(file,quotechar='"',quoting=csv.QUOTE_ALL)
+    csv_file.writerow(["Id","Metric","Value"])
+    for each in metric_value:
+        csv_file.writerow( [each[0],each[1],each[2]] )
 
 
-#### Generate List of Posts ####
+
 
