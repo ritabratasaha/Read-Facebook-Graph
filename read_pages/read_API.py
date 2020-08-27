@@ -101,6 +101,8 @@ def main():
                 exit(0)
         else:
             logging.info ("API response error : {0}".format(response_json))
+            exit(0)
+
         # increment to the next day
         next_day = startdate + timedelta(days=1)
         startdate = next_day
@@ -137,7 +139,8 @@ def main():
                 logging.info("Post Insights file uploading failed. Exiting processing")
                 exit(0)
     else:
-        logging.info ("Error in Posts insight call ")
+        logging.info ("API response error ".format(post_insights_json))
+
     ## Change JSON to CSV and move to CSV folder
     status = post_insight_create_csv(bucketName, outobjectKey)
     if ( status == True ):
