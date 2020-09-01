@@ -44,6 +44,8 @@ def page_insight_create_csv(bucket_name, object_key):
     
     logging.info("Function page_insight_create_csv() invoked")
     file_name = object_key.split('/')[-1].split('.')[0]
+    #year = file_name.split('_')[-1][:4]
+    #month = file_name.split('_')[-1][4:6]
     inobjectKey = object_key
     outobject_key =  'Facebook/Csv_Store/' + file_name + '.csv'
     csv_file_name = '/tmp/' + file_name + '.csv'

@@ -81,7 +81,7 @@ def main():
     ## 2. Store reponse in raw store as json
     ## 3. Convert json to csv
     startdate = datetime.strptime('2020-08-15','%Y-%m-%d').date()
-    for cnt in range(2): # No days from the starting date. Loop through each day
+    for cnt in range(15): # No days from the starting date. Loop through each day
         unixdate = int(startdate.strftime("%s"))
         filedate = startdate.strftime("%Y%m%d")
         logging.info("Current processing date : {0}->{1}".format(startdate, unixdate))
