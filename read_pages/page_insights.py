@@ -56,18 +56,19 @@ def page_insight_create_csv(bucket_name, object_key):
     s3_obj = s3.get_object( Bucket= bucket_name , Key= inobjectKey)
     s3_objdata = s3_obj['Body'].read().decode('utf-8')
     access_dict = json.loads(s3_objdata)
-
+    
 
     with open (csv_file_name,"w") as file:
         csv_file = csv.writer(file,quotechar='"',quoting=csv.QUOTE_ALL)
-        csv_file.writerow(["Id","Metric","Values","EffectiveDate"])
+        csv_file.writerow(["Id","Metric","Values","Period","EffectiveDate"])
         for metric in access_dict['data']:
-            Id = metric['id']
-            Metric = metric['name']
+            id = metric['id']
+            metric_name = metric['name']
+            period = metric['period']
             for values in metric['values']:
                 mvalues = values['value']
                 endtime = (values['end_time'])[:10]
-                csv_file.writerow([Id,Metric,mvalues,endtime])
+                csv_file.writerow([id,metric_name,mvalues,period,endtime])
 
     logging.info("Upload params : csv file name {0} uploaded object {1}".format(csv_file_name, outobject_key))
 
