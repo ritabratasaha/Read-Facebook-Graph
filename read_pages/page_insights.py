@@ -15,7 +15,7 @@ def get_page_insights(page_id,access_token,from_date,to_date):
                    'post_reactions_anger_total','post_reactions_sorry_total','post_reactions_haha_total',
                    'post_reactions_wow_total','post_reactions_love_total','post_reactions_like_total',
                    'page_fans','page_fans_country','page_fans_city','page_fans_gender_age','page_fans_by_like_source',
-                   'page_fan_removes','page_total_actions','page_consumptions']
+                   'page_fan_removes','page_total_actions','page_consumptions','page_impressions_viral_unique','page_total_actions']
     param_metric = ''
     for items in metric_list:
         param_metric =  items + ',' + param_metric

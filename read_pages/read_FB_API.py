@@ -80,8 +80,8 @@ def main():
     ## 1. Pull "page insights" data from API
     ## 2. Store reponse in raw store as json
     ## 3. Convert json to csv
-    startdate = datetime.strptime('2020-08-15','%Y-%m-%d').date()
-    for cnt in range(15): # No days from the starting date. Loop through each day
+    startdate = datetime.strptime('2020-08-01','%Y-%m-%d').date()
+    for cnt in range(32): # No days from the starting date. Loop through each day
         unixdate = int(startdate.strftime("%s"))
         filedate = startdate.strftime("%Y%m%d")
         logging.info("Current processing date : {0}->{1}".format(startdate, unixdate))
